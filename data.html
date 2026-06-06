@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile and Appointment Form with Token</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      max-width: 400px;
+    }
+    .profile-icon {
+      font-size: 48px;
+      color: #0971ce; /* Cisco Medium Blue */
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="tel"], input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #0971ce;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #log {
+      margin-top: 2rem;
+      white-space: pre-wrap;
+      background-color: #f2f2f2;
+      padding: 1rem;
+      border-radius: 4px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="profile-icon" aria-label="Profile Icon" role="img">👤</div>
+
+  <form id="profileForm" aria-label="Profile and Appointment Form">
+    <label for="tokenInput">Personal Access Token</label>
+    <input type="password" id="tokenInput" name="AccessToken" required aria-required="true" autocomplete="off" />
+
+    <label for="nameInput">Name</label>
+    <input type="text" id="nameInput" name="Name" required aria-required="true" />
+
+    <label for="phoneInput">Phone Number</label>
+    <input type="tel" id="phoneInput" name="Phone_number" required aria-required="true" pattern="[\d\s\-\+\(\)]+" />
+
+    <button type="submit" id="submitBtn">Enter</button>
+  </form>
+
+  <div id="log" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    const form = document.getElementById('profileForm');
+    const log = document.getElementById('log');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Airtable API URLs
+    const AIRTABLE_API_URL_PATIENT = 'https://api.airtable.com/v0/app8Rf3IzGBNlLSKy/Patient_Records';
+    const AIRTABLE_API_URL_APPOINTMENTS = 'https://api.airtable.com/v0/app8Rf3IzGBNlLSKy/Appointments';
+
+    // Utility: Generate random numeric string of given length
+    function generateRandomNumericId(length) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += Math.floor(Math.random() * 10);
+      }
+      return result;
+    }
+
+    // Utility: Generate random date within current month in ISO format YYYY-MM-DD
+    function generateRandomDateThisMonth() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth(); // 0-based
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const randomDay = Math.floor(Math.random() * daysInMonth) + 1;
+      const date = new Date(year, month, randomDay);
+      return date.toISOString().split('T')[0];
+    }
+
+    // Append message to log area
+    function appendLog(message) {
+      log.textContent += message + '
+';
+      log.scrollTop = log.scrollHeight;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submitBtn.disabled = true;
+      log.textContent = '';
+
+      const token = form.AccessToken.value.trim();
+      const name = form.Name.value.trim();
+      const phone = form.Phone_number.value.trim();
+
+      if (!token || !name || !phone) {
+        appendLog('Please fill in Personal Access Token, Name, and Phone Number.');
+        submitBtn.disabled = false;
+        return;
+      }
+
+      // Generate IDs and date
+      const patientId = generateRandomNumericId(6);
+      const appointmentId = generateRandomNumericId(8);
+      const appointmentDate = generateRandomDateThisMonth();
+
+      appendLog('Starting API calls...');
+      try {
+        // First API call: Create Patient Record
+        const patientResponse = await fetch(AIRTABLE_API_URL_PATIENT, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fields: {
+              Patient_ID: patientId,
+              Name: name,
+              Phone_number: phone
+            }
+          })
+        });
+
+        if (!patientResponse.ok) {
+          throw new Error(`Patient API call failed: ${patientResponse.status} ${patientResponse.statusText}`);
+        }
+
+        const patientData = await patientResponse.json();
+        appendLog('Patient Record created:
+' + JSON.stringify(patientData, null, 2));
+
+        const patientRecordId = patientData.id;
+        if (!patientRecordId) {
+          throw new Error('Patient record ID missing in response.');
+        }
+
+        // Second API call: Create Appointment Record
+        const appointmentResponse = await fetch(AIRTABLE_API_URL_APPOINTMENTS, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fields: {
+              Appointment_ID: appointmentId,
+              Can_Rebook: false,
+              Date: appointmentDate,
+              Patient_Records: [patientRecordId]
+            }
+          })
+        });
+
+        if (!appointmentResponse.ok) {
+          throw new Error(`Appointment API call failed: ${appointmentResponse.status} ${appointmentResponse.statusText}`);
+        }
+
+        const appointmentData = await appointmentResponse.json();
+        appendLog('Appointment Record created:
+' + JSON.stringify(appointmentData, null, 2));
+
+        appendLog('Both API calls completed successfully.');
+      } catch (error) {
+        appendLog('Error: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
