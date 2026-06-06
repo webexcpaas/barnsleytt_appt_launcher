@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Town Launchpad</title>
+  <link rel="icon" href="https://london-mailmedia.s3.amazonaws.com/5eb65906-aa26-404d-8fd7-2ddbe5f04d7e/WebexLogo_561791757657775.png" type="image/png">
+  <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <nav class="navMenu" id="myNavMenu">
+      <div class="navColL">
+        <a href="." class="logo-link" aria-label="Barnsley Hospital Home">
+          <!-- Inline Official NHS SVG Logo -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 50" width="260" height="40" aria-hidden="true">
+            <rect x="0" y="5" width="70" height="36" rx="2" fill="#005EB8" />
+            <text x="35" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-weight="900" font-style="italic" font-size="24" fill="#FFFFFF" text-anchor="middle">NHS</text>
+            <text x="80" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-weight="700" font-size="15" fill="#212B32">Barnsley Hospital</text>
+            <text x="80" y="39" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-weight="400" font-size="11" fill="#768590">NHS Foundation Trust</text>
+          </svg>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <div class="hero-container">
+    <img class="hero-image" src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1600&q=80" alt="Modern clean clinic entrance background">
+    <div class="hero-overlay">
+      <div class="hero-content">
+        <h1 class="hero-title">Outpatient Portal</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN BODY CONTAINER -->
+  <main id="container">
+    
+    <!-- FORM SECTION -->
+    <div class="card" id="form-card">
+      <h2 class="card-title">Confirm Attendance</h2>
+      <p class="card-intro">Please enter your name and email address below to confirm your attendance and receive your check-in confirmation details.</p>
+      
+      <form id="booking-form" novalidate>
+        <div class="form-group">
+          <label for="name-enter" class="form-label">Full Name</label>
+          <input type="text" id="name-enter" name="Name" class="form-input" placeholder="e.g. John Smith" autocomplete="name" required>
+          <span class="error-message" id="name-error">Please enter your full name</span>
+        </div>
+        
+        <div class="form-group">
+          <label for="email-enter" class="form-label">Email Address</label>
+          <input type="email" id="email-enter" name="Email" class="form-input" placeholder="e.g. john.smith@email.com" autocomplete="email" required>
+          <span class="error-message" id="email-error">Please enter a valid email address</span>
+        </div>
+        
+        <button type="submit" class="btn" id="submit-btn">
+          <span id="btn-text">Confirm Check-in</span>
+          <span class="btn-spinner" id="btn-spinner"></span>
+        </button>
+      </form>
+    </div>
+
+    <!-- SUCCESS MESSAGE SECTION -->
+    <div class="card success-container" id="success-container">
+      <div class="success-icon-wrapper">
+        <!-- Success SVG checkmark -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 class="success-title">Check-in Confirmed</h2>
+      <p class="success-subtitle">Thank you. Your details have been submitted successfully.</p>
+      
+      <div class="info-badge">
+        <div class="info-row">
+          <span class="info-label">Confirmation Email:</span>
+          <span class="info-value patientEmail">john.smith@email.com</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <a href="mailto:sebh@cisco.com" class="email-link">sebh@cisco.com</a></p>
+    <p style="font-size: 0.8rem; color: var(--nhs-secondary-text);"><b>Webex CX</b> demo team</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
